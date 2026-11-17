@@ -1,0 +1,53 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex">
+<title>Spring Certified QC Geri Bildirim</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+<style>
+:root{--bg:#F6F8F5;--card:#fff;--fg:#1B211C;--mute:#5B665E;--line:#DDE4DD;--green:#21A038;--green-d:#17812C;--soft:#E6F4EA;--red:#C8102E}
+@media (prefers-color-scheme:dark){:root{--bg:#111512;--card:#1A201B;--fg:#EEF2EE;--mute:#A3AEA5;--line:#2C352E;--green:#1F8F33;--green-d:#5FCB72;--soft:#16301D;--red:#FF6B81;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;font:17px/1.45 Inter,system-ui,sans-serif;color:var(--fg);background:var(--bg)}
+header{background:var(--green);color:#fff}
+.w{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header .w{padding-block:20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+header p{margin:0;font-size:12px;font-weight:700;letter-spacing:.12em}header h1{margin:2px 0 0;font-size:26px;line-height:1.1}
+header img{height:34px;background:#fff;border-radius:8px;padding:5px 9px}
+main.w{padding-block:18px 60px;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.q{font-weight:700;margin:0 0 10px}.mute{color:var(--mute);font-size:14px;margin:6px 0 0}
+.sc{display:flex;gap:8px}.sc label{flex:1;min-width:0}.sc input,.ch input{position:absolute;opacity:0}
+.sc span,.ch span{display:flex;align-items:center;justify-content:center;min-height:52px;border:1.5px solid var(--line);border-radius:10px;font-weight:700;font-size:18px;cursor:pointer;padding:0 8px;text-align:center}
+.ch{display:flex;gap:8px;flex-wrap:wrap}.ch label{flex:1;min-width:90px}.ch span{font-size:16px}
+input:checked+span{background:var(--green);border-color:var(--green);color:#fff}input:focus-visible+span{outline:3px solid var(--fg);outline-offset:2px}
+.ends{display:flex;justify-content:space-between;font-size:13px;color:var(--mute);margin-top:6px}
+textarea,input[type=text]{width:100%;padding:13px;font:inherit;color:inherit;background:var(--card);border:1.5px solid var(--line);border-radius:10px}textarea{min-height:92px;resize:vertical}
+label.f{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:16px 18px;width:100%;background:var(--green);color:#fff;cursor:pointer}button:disabled{opacity:.5}
+.err{color:var(--red);font-weight:600;margin:0}.ok{text-align:center;padding:36px 16px}.ok p.b{font-size:26px;font-weight:700;color:var(--green-d);margin:0 0 8px}
+[hidden]{display:none!important}
+</style></head><body>
+<header><div class="w"><div><p>SPRING CERTIFIED QC</p><h1>Eğitim geri bildirimi</h1></div><img src="logo.png" alt="Spring"></div></header>
+<main class="w">
+<form id="f" novalidate>
+<div class="card"><p class="q" style="margin:0">Görüşünüz eğitimi geliştirmemize yardımcı olur.</p><p class="mute">İsim yazmak zorunlu değildir. Yaklaşık 2 dakika sürer.</p></div>
+<div id="qs" style="display:flex;flex-direction:column;gap:14px;margin-top:14px"></div>
+<div class="card" style="margin-top:14px"><p class="q">Süre nasıldı?</p><div class="ch"><label><input type="radio" name="sure" value="Kısa"><span>Kısa</span></label><label><input type="radio" name="sure" value="Yeterli"><span>Yeterli</span></label><label><input type="radio" name="sure" value="Uzun"><span>Uzun</span></label></div></div>
+<div class="card" style="margin-top:14px"><p class="q">En faydalı bulduğunuz konu hangisiydi?</p><textarea name="faydali" maxlength="1000"></textarea></div>
+<div class="card" style="margin-top:14px"><p class="q">Eksik kalan ya da anlaşılmayan bir konu var mı?</p><textarea name="eksik" maxlength="1000"></textarea></div>
+<div class="card" style="margin-top:14px"><p class="q">Öneriniz</p><textarea name="oneri" maxlength="1000"></textarea></div>
+<div class="card" style="margin-top:14px"><p class="q" style="margin:0">İsterseniz</p><p class="mute">Bu alanlar zorunlu değildir.</p><label class="f" for="ad">Ad Soyad</label><input id="ad" name="ad" type="text" maxlength="80" autocomplete="name"><label class="f" for="firma">Firma / Fabrika</label><input id="firma" name="firma" type="text" maxlength="80" autocomplete="organization"></div>
+<p class="err" id="err" hidden style="margin-top:14px"></p>
+<button id="go" type="submit" style="margin-top:14px">Gönder</button>
+</form>
+<div class="card ok" id="ok" hidden><p class="b">Teşekkür ederiz.</p><p class="mute" style="font-size:16px">Geri bildiriminiz kaydedildi.</p></div>
+</main>
+<script src="api.js"></script>
+<script>
+const Q=[['genel','Eğitimi genel olarak nasıl değerlendirirsiniz?'],['is','Anlatılanları işimde kullanabilirim.'],['anlatim','Eğitmenin anlatımı anlaşılırdı.'],['gorsel','Görseller ve videolar konuyu anlamama yardımcı oldu.'],['workshop','Workshoplar faydalıydı.']];
+document.getElementById('qs').innerHTML=Q.map(([k,t])=>'<div class="card"><p class="q">'+t+'</p><div class="sc">'+[1,2,3,4,5].map(n=>'<label><input type="radio" name="'+k+'" value="'+n+'"><span>'+n+'</span></label>').join('')+'</div><div class="ends"><span>1 = Çok zayıf</span><span>5 = Çok iyi</span></div></div>').join('');
+const f=document.getElementById('f'),err=document.getElementById('err'),go=document.getElementById('go');
+f.addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(f).entries());d.tip='geribildirim';
+ if(!d.genel){err.textContent='Lütfen en az ilk soruyu puanlayın.';err.hidden=false;return}
+ if(!window.SCQC_API){err.textContent='Form henüz açılmadı. Lütfen eğitmeninize haber verin.';err.hidden=false;return}
+ err.hidden=true;go.disabled=true;go.textContent='Gönderiliyor…';
+ try{const r=await fetch(window.SCQC_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(d)});const j=await r.json();if(j.hata)throw new Error(j.hata);f.hidden=true;document.getElementById('ok').hidden=false;scrollTo(0,0)}
+ catch(x){err.textContent='Gönderilemedi. İnternet bağlantınızı kontrol edip tekrar deneyin.';err.hidden=false;go.disabled=false;go.textContent='Gönder'}});
+</script></body></html>
