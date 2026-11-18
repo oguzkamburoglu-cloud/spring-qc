@@ -89,7 +89,7 @@ function share(total,weights){// en büyük küsurat yöntemi
   const W=weights.reduce((a,b)=>a+b,0);if(!W)return weights.map(()=>0);
   const raw=weights.map(w=>w*total/W),fl=raw.map(Math.floor);let left=total-fl.reduce((a,b)=>a+b,0);
   raw.map((v,i)=>[v-fl[i],i]).sort((a,b)=>b[0]-a[0]).forEach(([,i])=>{if(left>0){fl[i]++;left--}});return fl}
-function split(n,k){if(!k)return"";const b=Math.floor(n/k),r=n%k;return r?`${r} koliden ${b+1}, ${k-r} koliden ${b}`:`${k} koliden ${b}`}
+function split(n,k,u){if(!k)return"";const b=Math.floor(n/k),r=n%k;return r?`${r} ${u}${u==="koli"?"den":"tan"} ${b+1}, ${k-r} ${u}${u==="koli"?"den":"tan"} ${b}`:`${k} ${u}${u==="koli"?"den":"tan"} ${b}`}
 function calc(){
   const kol=tip==="koli";document.querySelectorAll(".kc").forEach(e=>e.style.display=kol?"":"none");
   const R=[...rows.children].map(tr=>{const v=[...tr.querySelectorAll("input")].map(i=>i.value);return{b:v[0]||"?",po:+v[1]||0,sv:v[2]===""?null:+v[2]||0,kl:+v[3]||0}}).filter(r=>r.po>0);
@@ -118,17 +118,22 @@ function calc(){
       kT=ks.reduce((a,b)=>a+b,0)}
     h+=`<div class="k"><p class="a">Açılacak koli</p><p class="b">${fmt(kT)}</p></div>`;
     if(koliT)h+=`</div><p class="note">Toplam ${fmt(koliT)} koli. Karekök alt sınırı: √${fmt(koliT)} = ${(Math.sqrt(koliT)).toLocaleString("tr-TR",{maximumFractionDigits:2})} → en az ${sq} koli. Bir koliden en çok ${mx} ürün alındığı için her beden için koli = beden kontrol adedi ÷ ${mx} (yukarı yuvarlanır).</p>`;else h+="</div>";
-  }else h+="</div>";
+  }else{
+    ks=R.map((r,i)=>Math.ceil(ns[i]/5));
+    R.forEach((r,i)=>{const q=r.sv==null?r.po:r.sv,av=Math.ceil(q/50);if(ks[i]>av){warn.push(`${r.b} bedeninde ${q} askı var (${av} grup); ${ns[i]} ürün için 50 askıdan 5'ten fazla ürün alınması gerekir.`);ks[i]=av}});
+    kT=ks.reduce((a,b)=>a+b,0);
+    h+=`<div class="k"><p class="a">50'lik askı grubu</p><p class="b">${fmt(kT)}</p></div></div><p class="note">Her 50 askıdan en fazla 5 ürün alınır: her beden için grup = beden kontrol adedi ÷ 5 (yukarı yuvarlanır).</p>`;
+  }
   if(all)warn.push("Numune adedi parti adedine eşit ya da büyük: ürünlerin tamamı kontrol edilir.");
   if(pm.n!==NS[idx]||pn.n!==NS[idx])warn.push(`Tabloda ok işareti var: bu AQL için numune ${fmt(n)} adet alınır.`);
-  h+=`<div class="tw"><table><thead><tr><th>Beden</th><th class="n">PO</th><th class="n">PO oranı</th><th class="n">Kontrol adedi</th>${kol?'<th class="n">Koli</th><th>Koli içi dağılım</th>':""}</tr></thead><tbody>`;
-  R.forEach((r,i)=>{h+=`<tr><td>${r.b.replace(/[<&]/g,"")}</td><td class="n">${fmt(r.po)}</td><td class="n">%${(r.po/poT*100).toLocaleString("tr-TR",{maximumFractionDigits:1})}</td><td class="n hl">${ns[i]}</td>${kol?`<td class="n">${ks[i]}</td><td>${split(ns[i],ks[i])}</td>`:""}</tr>`});
-  h+=`</tbody><tfoot><tr><td>Toplam</td><td class="n">${fmt(poT)}</td><td class="n">%100</td><td class="n hl">${fmt(n)}</td>${kol?`<td class="n">${kT}</td><td></td>`:""}</tr></tfoot></table></div>`;
+  h+=`<div class="tw"><table><thead><tr><th>Beden</th><th class="n">PO</th><th class="n">PO oranı</th><th class="n">Kontrol adedi</th>${kol?'<th class="n">Koli</th><th>Koli içi dağılım</th>':'<th class="n">Askı grubu</th><th>Grup içi dağılım</th>'}</tr></thead><tbody>`;
+  R.forEach((r,i)=>{h+=`<tr><td>${r.b.replace(/[<&]/g,"")}</td><td class="n">${fmt(r.po)}</td><td class="n">%${(r.po/poT*100).toLocaleString("tr-TR",{maximumFractionDigits:1})}</td><td class="n hl">${ns[i]}</td><td class="n">${ks[i]}</td><td>${split(ns[i],ks[i],kol?"koli":"grup")}</td></tr>`});
+  h+=`</tbody><tfoot><tr><td>Toplam</td><td class="n">${fmt(poT)}</td><td class="n">%100</td><td class="n hl">${fmt(n)}</td><td class="n">${kT}</td><td></td></tr></tfoot></table></div>`;
   h+=`<div class="tw"><table><thead><tr><th>Hata sınıfı</th><th class="n">AQL</th><th class="n">Kabul</th><th class="n">Red</th></tr></thead><tbody>`+
    `<tr><td>Kritik</td><td class="n">0</td><td class="n">0</td><td class="n">1</td></tr>`+
    `<tr><td>Majör</td><td class="n">${document.getElementById("maj").value.replace(".",",")}</td><td class="n">${pm.ac}</td><td class="n">${pm.ac+1}</td></tr>`+
    `<tr><td>Minör</td><td class="n">${document.getElementById("min").value.replace(".",",")}</td><td class="n">${pn.ac}</td><td class="n">${pn.ac+1}</td></tr></tbody></table></div>`;
-  h+=kol?`<p class="note">Koliler istifin üstünden, ortasından ve altından, önden ve arkadan seçilir. Ürünler kolinin üst, orta ve alt katlarından alınır.</p>`:`<p class="note">Askılı üründe koli hesabı yoktur. Her bedenin kontrol adedi, o bedenin raylarının başından, ortasından ve sonundan alınır; seçilen ürünler boş bir raya alınır.</p>`;
+  h+=kol?`<p class="note">Koliler istifin üstünden, ortasından ve altından, önden ve arkadan seçilir. Ürünler kolinin üst, orta ve alt katlarından alınır.</p>`:`<p class="note">Askılı üründe ürünler her bedenin raylarının başından, ortasından ve sonundan alınır; her 50 askıdan en fazla 5 ürün alınır. Seçilen ürünler boş bir raya alınır.</p>`;
   warn.forEach(w=>h+=`<p class="warn">${w}</p>`);
   out.innerHTML=h}
 calc();
