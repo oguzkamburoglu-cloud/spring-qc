@@ -24,6 +24,7 @@ table{border-collapse:collapse;width:100%;font-size:16px}
 th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);text-align:left;padding:6px;border-bottom:2px solid var(--line);white-space:nowrap}
 td{padding:6px;border-bottom:1px solid var(--line);vertical-align:middle}
 td input{padding:8px;font-size:16px}
+#rows td:first-child input{min-width:130px}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .x{background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer;padding:4px 8px}
 .add{align-self:flex-start;font:700 15px Inter,sans-serif;background:var(--soft);color:var(--green-d);border:0;border-radius:8px;padding:10px 14px;cursor:pointer}
@@ -34,6 +35,9 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .note{font-size:14px;color:var(--mute);margin:0}
 tfoot td{font-weight:800}
 .hl{color:var(--green-d);font-weight:800}
+.up{display:flex;flex-direction:column;gap:6px;border:2px dashed var(--green);border-radius:12px;padding:12px;background:var(--soft)}
+.upb{font-size:15px;font-weight:700;color:var(--green-d)}.upb input{background:var(--card)}
+#upmsg.err{color:var(--red);font-weight:700}#upmsg.ok{color:var(--green-d);font-weight:700}
 </style></head><body>
 <header><div class="w"><div><p>SPRING CERTIFIED QC</p><h1>AQL numune hesaplama</h1></div><img src="logo.png" alt="Spring"></div></header>
 <main class="w">
@@ -49,10 +53,12 @@ tfoot td{font-weight:800}
 <label>Minör AQL<select id="min"><option>1.0</option><option>1.5</option><option>2.5</option><option selected>4.0</option><option>6.5</option></select></label>
 <label class="kc">Koliden en çok ürün<input id="mx" type="number" min="1" value="5" inputmode="numeric"></label>
 </div>
-<p class="note">Spring standardı: Seviye II, majör 2,5, minör 4,0, kritik 0. Müşteri daha yüksek bir standart istiyorsa o kullanılır.</p>
+<p class="note" id="std">Spring standardı hazır gelir: Seviye II, majör 2,5, minör 4,0, kritik 0. Müşteri daha yüksek bir standart istiyorsa değerler değiştirilir.</p>
+<button class="add" id="rst" hidden>Spring standardına dön</button>
 </div>
 <div class="card">
 <h2>3 · PO beden dağılımı</h2>
+<div class="up"><label class="upb">Çeki listesi yükle (Excel ya da CSV)<input type="file" id="ceki" accept=".xlsx,.xls,.csv"></label><p class="note">Çeki listesindeki beden, adet ve koli bilgileri tabloya otomatik girilir. Yüklemeden sonra adetler kontrol edilir; PO adedi farklıysa düzeltilir.</p><p class="note" id="upmsg" hidden></p></div>
 <p class="note">Her satıra bir beden yazılır. Birden fazla renk varsa her renk ve beden ayrı satıra yazılır (ör. Lacivert / M).</p>
 <div class="tw"><table><thead><tr><th>Beden</th><th class="n">PO adedi</th><th class="n">Sevk adedi</th><th class="n kc">Koli adedi</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
 <button class="add" id="add">+ Beden ekle</button>
@@ -60,6 +66,7 @@ tfoot td{font-weight:800}
 <div class="card" id="out"></div>
 <p class="note">Hesap, ISO 2859-1 tek numune, normal kontrol tablosuna göre yapılır. Numune, PO'daki beden oranına göre bedenlere dağıtılır; küsuratlar toplam numune adedini tutacak şekilde en büyük küsurattan başlanarak yuvarlanır.</p>
 </main>
+<script src="xlsx.full.min.js"></script>
 <script>
 const LOTS=[[2,8],[9,15],[16,25],[26,50],[51,90],[91,150],[151,280],[281,500],[501,1200],[1201,3200],[3201,10000],[10001,35000],[35001,150000],[150001,500000],[500001,Infinity]];
 const CODE=[["A","A","B"],["A","B","C"],["B","C","D"],["C","D","E"],["C","E","F"],["D","F","G"],["E","G","H"],["F","H","J"],["G","J","K"],["H","K","L"],["J","L","M"],["K","M","N"],["L","N","P"],["M","P","Q"],["N","Q","R"]];
@@ -77,14 +84,55 @@ function plan(li,aql){// ISO 2859-1 Tablo II-A, ok işaretleri çözülmüş
   }}
 const fmt=n=>n.toLocaleString("tr-TR");
 let tip="koli";
-const S=[["8",200,"",8],["10",400,"",16],["12",400,"",16],["14",750,"",30],["16",750,"",30]];
+const S=[["","","",""],["","","",""],["","","",""]];
 const rows=document.getElementById("rows");
-function addRow(r){const tr=document.createElement("tr");tr.innerHTML=`<td><input value="${r[0]}" aria-label="Beden"></td><td><input type="number" min="0" inputmode="numeric" value="${r[1]}" aria-label="PO adedi"></td><td><input type="number" min="0" inputmode="numeric" value="${r[2]}" placeholder="PO" aria-label="Sevk adedi"></td><td class="kc"><input type="number" min="0" inputmode="numeric" value="${r[3]}" aria-label="Koli adedi"></td><td><button class="x" aria-label="Satırı sil">×</button></td>`;
+const esc=v=>String(v).replace(/[&"<>]/g,c=>({"&":"&amp;",'"':"&quot;","<":"&lt;",">":"&gt;"})[c]);
+function addRow(r){r=r.map(esc);const tr=document.createElement("tr");tr.innerHTML=`<td><input value="${r[0]}" aria-label="Beden"></td><td><input type="number" min="0" inputmode="numeric" value="${r[1]}" aria-label="PO adedi"></td><td><input type="number" min="0" inputmode="numeric" value="${r[2]}" placeholder="PO" aria-label="Sevk adedi"></td><td class="kc"><input type="number" min="0" inputmode="numeric" value="${r[3]}" aria-label="Koli adedi"></td><td><button class="x" aria-label="Satırı sil">×</button></td>`;
   tr.querySelector(".x").onclick=()=>{tr.remove();calc()};tr.querySelectorAll("input").forEach(i=>i.oninput=calc);rows.appendChild(tr)}
 S.forEach(addRow);
-document.getElementById("add").onclick=()=>{addRow(["",0,"",0]);calc()};
+document.getElementById("add").onclick=()=>{addRow(["","","",""]);calc()};
 document.querySelectorAll("#tip button").forEach(b=>b.onclick=()=>{tip=b.dataset.t;document.querySelectorAll("#tip button").forEach(x=>x.classList.toggle("on",x===b));calc()});
-["lvl","maj","min","mx"].forEach(id=>document.getElementById(id).oninput=calc);
+const STD={lvl:"1",maj:"2.5",min:"4.0",mx:"5"};
+function stdChk(){const on=Object.keys(STD).every(k=>document.getElementById(k).value===STD[k]);document.getElementById("rst").hidden=on;document.getElementById("std").textContent=on?"Spring standardı hazır gelir: Seviye II, majör 2,5, minör 4,0, kritik 0, koliden en çok 5 ürün. Müşteri daha yüksek bir standart istiyorsa değerler değiştirilir.":"Değerler Spring standardından farklı: müşteri standardı kullanılıyor."}
+["lvl","maj","min","mx"].forEach(id=>document.getElementById(id).oninput=()=>{stdChk();calc()});
+document.getElementById("rst").onclick=()=>{Object.keys(STD).forEach(k=>document.getElementById(k).value=STD[k]);stdChk();calc()};
+// Çeki listesi
+const norm=v=>String(v==null?"":v).toLocaleLowerCase("tr-TR").replace(/\s+/g," ").trim();
+const num=v=>{if(typeof v==="number")return v;const t=String(v||"").replace(/\s/g,"").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",",".");const n=parseFloat(t);return isNaN(n)?0:n};
+const KW={size:/^(beden|size|sz|ölçü|yaş|age)\b|beden|size/,qty:/^(adet|toplam adet|miktar|qty|quantity|pcs|pieces|total qty|total pcs|toplam)$|adet|qty|quantity|pcs|pieces|miktar/,per:/koli (başı|içi)|koli içi adet|per (ctn|carton)|pcs ?\/ ?ctn|qty ?\/ ?ctn|adet ?\/ ?koli|\/ ?ctn/,ctn:/^(koli|koli adedi|koli sayısı|ctns?|cartons?|ctn qty|no of ctns?|# ?ctns?|carton qty|total ctns?)$|koli adedi|koli sayısı|no\.? of ctn|ctn qty|total ctn/,cno:/koli no|koli numara|ctn ?no|carton ?no|carton ?#|c\/no|koli ?#/,color:/^(renk|colou?r)/};
+const SIZE=/^(xxs|xs|s|m|l|xl|xxl|xxxl|[2-6]xl|\d{1,3}(\/\d{1,3})?|\d{1,2}-\d{1,2} ?(y|yaş|ay|m)?|\d{1,2} ?(y|yaş|ay|m|yrs?)|one ?size|std|tek ?beden)$/i;
+function rangeCount(v){const m=String(v||"").match(/(\d+)\s*[-–~]\s*(\d+)/);if(m){const a=+m[1],b=+m[2];return b>=a?b-a+1:1}return String(v||"").trim()?1:0}
+function parseCeki(A){// A: satır dizisi
+  let hi=-1,col={};
+  for(let r=0;r<Math.min(A.length,40);r++){const H=A[r].map(norm),c={};
+    H.forEach((h,j)=>{if(!h)return;if(c.per==null&&KW.per.test(h))c.per=j;else if(c.cno==null&&KW.cno.test(h))c.cno=j;else if(c.ctn==null&&KW.ctn.test(h))c.ctn=j;else if(c.size==null&&KW.size.test(h))c.size=j;else if(c.color==null&&KW.color.test(h))c.color=j;else if(c.qty==null&&KW.qty.test(h))c.qty=j});
+    const sizeCols=H.map((h,j)=>[h,j]).filter(([h,j])=>h&&SIZE.test(h)&&!Object.values(c).includes(j)).map(([,j])=>j);
+    if(c.size!=null&&(c.qty!=null||c.per!=null)){hi=r;col=c;break}
+    if(sizeCols.length>=2){hi=r;col=c;col.wide=sizeCols;break}
+  }
+  if(hi<0)return null;
+  const H=A[hi],agg=new Map();let ctnT=0;
+  const add=(k,q,kl)=>{if(!k||q<=0)return;const o=agg.get(k)||{q:0,k:0};o.q+=q;o.k+=kl;agg.set(k,o)};
+  for(let r=hi+1;r<A.length;r++){const R=A[r];if(!R||R.every(v=>String(v==null?"":v).trim()===""))continue;
+    const first=norm(R.find(v=>String(v==null?"":v).trim()!==""));if(/^(toplam|total|grand total|genel toplam)/.test(first))continue;
+    const hasK=col.ctn!=null||col.cno!=null;let kl=col.ctn!=null?num(R[col.ctn]):col.cno!=null?rangeCount(R[col.cno]):0;if(hasK)ctnT+=kl;
+    const clr=col.color!=null?String(R[col.color]||"").trim():"";
+    if(col.wide){const qs=col.wide.map(j=>num(R[j])),tot=qs.reduce((a,b)=>a+b,0);if(!tot)continue;
+      const mult=col.per!=null||col.ctn!=null||col.cno!=null?(kl||1):1;
+      col.wide.forEach((j,i)=>{if(qs[i]>0){const q=col.per!=null||(col.ctn!=null&&col.qty==null)?qs[i]*mult:qs[i];add((clr?clr+" / ":"")+String(H[j]).trim(),q,kl)}})}
+    else{let sz=String(R[col.size]==null?"":R[col.size]).trim();if(!sz)continue;
+      const q=col.qty!=null&&num(R[col.qty])?num(R[col.qty]):col.per!=null?num(R[col.per])*(kl||1):0;
+      add((clr?clr+" / ":"")+sz,q,kl)}
+  }
+  return agg.size?{rows:[...agg].map(([b,o])=>[b,Math.round(o.q),Math.round(o.k)]),ctn:ctnT,mixed:!!col.wide}:null}
+document.getElementById("ceki").onchange=async e=>{const f=e.target.files[0],m=document.getElementById("upmsg");if(!f)return;m.hidden=false;m.className="note";m.textContent="Dosya okunuyor…";
+  try{if(typeof XLSX==="undefined")throw new Error("lib");const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});let res=null;
+    for(const n of wb.SheetNames){res=parseCeki(XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,defval:"",raw:true}));if(res)break}
+    if(!res){m.className="note err";m.textContent="Çeki listesinde beden ve adet sütunları bulunamadı. Başlık satırında “Beden” ve “Adet” (ya da “Size” ve “Qty”) yazmalıdır. Adetler tabloya elle de girilebilir.";return}
+    rows.innerHTML="";res.rows.forEach(([b,q,k])=>addRow([b,q,q,k||""]));
+    const tq=res.rows.reduce((a,r)=>a+r[1],0),tk=res.ctn;
+    m.className="note ok";m.textContent=`${res.rows.length} beden okundu: toplam ${fmt(tq)} adet${tk?", "+fmt(tk)+" koli":""}.${res.mixed&&tk?" Karışık (asorti) koli: her bedenin koli adedi, o bedeni içeren koli sayısıdır.":""}${tk?"":" Çeki listesinde koli bilgisi yok: koli adedi elle girilir."} PO adedi çeki listesindeki adetle dolduruldu; PO farklıysa PO adedi düzeltilir.`;calc()}
+  catch(err){m.className="note err";m.textContent=err.message==="lib"?"Excel okuyucu yüklenemedi. İnternet bağlantısı kontrol edilir ya da CSV dosyası kullanılır.":"Dosya okunamadı. Dosyanın Excel (.xlsx) ya da CSV olduğu kontrol edilir."}};
 function share(total,weights){// en büyük küsurat yöntemi
   const W=weights.reduce((a,b)=>a+b,0);if(!W)return weights.map(()=>0);
   const raw=weights.map(w=>w*total/W),fl=raw.map(Math.floor);let left=total-fl.reduce((a,b)=>a+b,0);
@@ -94,7 +142,7 @@ function calc(){
   const kol=tip==="koli";document.querySelectorAll(".kc").forEach(e=>e.style.display=kol?"":"none");
   const R=[...rows.children].map(tr=>{const v=[...tr.querySelectorAll("input")].map(i=>i.value);return{b:v[0]||"?",po:+v[1]||0,sv:v[2]===""?null:+v[2]||0,kl:+v[3]||0}}).filter(r=>r.po>0);
   const out=document.getElementById("out");
-  if(!R.length){out.innerHTML="<h2>Sonuç</h2><p class='note'>PO adetlerini girin.</p>";return}
+  if(!R.length){out.innerHTML="<h2>Sonuç</h2><p class='note'>Çeki listesi yüklenir ya da beden ve PO adetleri girilir.</p>";return}
   const poT=R.reduce((a,r)=>a+r.po,0),svT=R.reduce((a,r)=>a+(r.sv==null?r.po:r.sv),0);
   const lot=svT,lv=+document.getElementById("lvl").value;
   const li=LOTS.findIndex(([a,b])=>lot>=a&&lot<=b);
@@ -125,8 +173,8 @@ function calc(){
   }
   if(all)warn.push("Numune adedi parti adedine eşit ya da büyük: ürünlerin tamamı kontrol edilir.");
   if(pm.n!==NS[idx]||pn.n!==NS[idx])warn.push(`Tabloda ok işareti var: bu AQL için numune ${fmt(n)} adet alınır.`);
-  h+=`<div class="tw"><table><thead><tr><th>Beden</th><th class="n">PO</th><th class="n">PO oranı</th><th class="n">Kontrol adedi</th>${kol?'<th class="n">Koli</th><th>Koli içi dağılım</th>':'<th class="n">En çok alınabilir</th><th></th>'}</tr></thead><tbody>`;
-  R.forEach((r,i)=>{h+=`<tr><td>${r.b.replace(/[<&]/g,"")}</td><td class="n">${fmt(r.po)}</td><td class="n">%${(r.po/poT*100).toLocaleString("tr-TR",{maximumFractionDigits:1})}</td><td class="n hl">${ns[i]}</td><td class="n">${ks[i]}</td><td>${kol?split(ns[i],ks[i],"koli"):""}</td></tr>`});
+  h+=`<div class="tw"><table><thead><tr><th>Beden</th><th class="n">PO</th><th class="n">PO oranı</th><th class="n">Kontrol adedi</th>${kol?'<th class="n">Açılacak koli</th><th>Her koliden alınacak</th>':'<th class="n">En çok alınabilir</th><th></th>'}</tr></thead><tbody>`;
+  R.forEach((r,i)=>{h+=`<tr><td>${esc(r.b)}</td><td class="n">${fmt(r.po)}</td><td class="n">%${(r.po/poT*100).toLocaleString("tr-TR",{maximumFractionDigits:1})}</td><td class="n hl">${ns[i]}</td><td class="n">${ks[i]}</td><td>${kol?split(ns[i],ks[i],"koli"):""}</td></tr>`});
   h+=`</tbody><tfoot><tr><td>Toplam</td><td class="n">${fmt(poT)}</td><td class="n">%100</td><td class="n hl">${fmt(n)}</td><td class="n">${kol?kT:""}</td><td></td></tr></tfoot></table></div>`;
   h+=`<div class="tw"><table><thead><tr><th>Hata sınıfı</th><th class="n">AQL</th><th class="n">Kabul</th><th class="n">Red</th></tr></thead><tbody>`+
    `<tr><td>Kritik</td><td class="n">0</td><td class="n">0</td><td class="n">1</td></tr>`+
