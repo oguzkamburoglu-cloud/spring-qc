@@ -119,16 +119,15 @@ function calc(){
     h+=`<div class="k"><p class="a">Açılacak koli</p><p class="b">${fmt(kT)}</p></div>`;
     if(koliT)h+=`</div><p class="note">Toplam ${fmt(koliT)} koli. Karekök alt sınırı: √${fmt(koliT)} = ${(Math.sqrt(koliT)).toLocaleString("tr-TR",{maximumFractionDigits:2})} → en az ${sq} koli. Bir koliden en çok ${mx} ürün alındığı için her beden için koli = beden kontrol adedi ÷ ${mx} (yukarı yuvarlanır).</p>`;else h+="</div>";
   }else{
-    ks=R.map((r,i)=>Math.ceil(ns[i]/5));
-    R.forEach((r,i)=>{const q=r.sv==null?r.po:r.sv,av=Math.ceil(q/50);if(ks[i]>av){warn.push(`${r.b} bedeninde ${q} askı var (${av} grup); ${ns[i]} ürün için 50 askıdan 5'ten fazla ürün alınması gerekir.`);ks[i]=av}});
-    kT=ks.reduce((a,b)=>a+b,0);
-    h+=`<div class="k"><p class="a">50'lik askı grubu</p><p class="b">${fmt(kT)}</p></div></div><p class="note">Her 50 askıdan en fazla 5 ürün alınır: her beden için grup = beden kontrol adedi ÷ 5 (yukarı yuvarlanır).</p>`;
+    ks=R.map(r=>{const q=r.sv==null?r.po:r.sv;return Math.min(q,Math.ceil(q/50)*5)});
+    R.forEach((r,i)=>{if(ns[i]>ks[i])warn.push(`${r.b} bedeninde kontrol adedi (${ns[i]}), her 50 askıdan en fazla 5 ürün kuralına göre alınabilecek adedi (${ks[i]}) aşıyor.`)});
+    h+=`</div><p class="note">Her 50 askıdan en fazla 5 ürün alınır. Ürünler bedenin bütün raylarına yayılarak seçilir.</p>`;
   }
   if(all)warn.push("Numune adedi parti adedine eşit ya da büyük: ürünlerin tamamı kontrol edilir.");
   if(pm.n!==NS[idx]||pn.n!==NS[idx])warn.push(`Tabloda ok işareti var: bu AQL için numune ${fmt(n)} adet alınır.`);
-  h+=`<div class="tw"><table><thead><tr><th>Beden</th><th class="n">PO</th><th class="n">PO oranı</th><th class="n">Kontrol adedi</th>${kol?'<th class="n">Koli</th><th>Koli içi dağılım</th>':'<th class="n">Askı grubu</th><th>Grup içi dağılım</th>'}</tr></thead><tbody>`;
-  R.forEach((r,i)=>{h+=`<tr><td>${r.b.replace(/[<&]/g,"")}</td><td class="n">${fmt(r.po)}</td><td class="n">%${(r.po/poT*100).toLocaleString("tr-TR",{maximumFractionDigits:1})}</td><td class="n hl">${ns[i]}</td><td class="n">${ks[i]}</td><td>${split(ns[i],ks[i],kol?"koli":"grup")}</td></tr>`});
-  h+=`</tbody><tfoot><tr><td>Toplam</td><td class="n">${fmt(poT)}</td><td class="n">%100</td><td class="n hl">${fmt(n)}</td><td class="n">${kT}</td><td></td></tr></tfoot></table></div>`;
+  h+=`<div class="tw"><table><thead><tr><th>Beden</th><th class="n">PO</th><th class="n">PO oranı</th><th class="n">Kontrol adedi</th>${kol?'<th class="n">Koli</th><th>Koli içi dağılım</th>':'<th class="n">En çok alınabilir</th><th></th>'}</tr></thead><tbody>`;
+  R.forEach((r,i)=>{h+=`<tr><td>${r.b.replace(/[<&]/g,"")}</td><td class="n">${fmt(r.po)}</td><td class="n">%${(r.po/poT*100).toLocaleString("tr-TR",{maximumFractionDigits:1})}</td><td class="n hl">${ns[i]}</td><td class="n">${ks[i]}</td><td>${kol?split(ns[i],ks[i],"koli"):""}</td></tr>`});
+  h+=`</tbody><tfoot><tr><td>Toplam</td><td class="n">${fmt(poT)}</td><td class="n">%100</td><td class="n hl">${fmt(n)}</td><td class="n">${kol?kT:""}</td><td></td></tr></tfoot></table></div>`;
   h+=`<div class="tw"><table><thead><tr><th>Hata sınıfı</th><th class="n">AQL</th><th class="n">Kabul</th><th class="n">Red</th></tr></thead><tbody>`+
    `<tr><td>Kritik</td><td class="n">0</td><td class="n">0</td><td class="n">1</td></tr>`+
    `<tr><td>Majör</td><td class="n">${document.getElementById("maj").value.replace(".",",")}</td><td class="n">${pm.ac}</td><td class="n">${pm.ac+1}</td></tr>`+
