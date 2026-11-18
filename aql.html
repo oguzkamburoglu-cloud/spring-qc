@@ -1,0 +1,136 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex">
+<title>AQL Numune Hesaplama</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+<style>
+:root{--bg:#F6F8F5;--card:#fff;--fg:#1B211C;--mute:#5B665E;--line:#DDE4DD;--green:#21A038;--green-d:#17812C;--soft:#E6F4EA;--red:#C8102E;--amb:#B26B00}
+@media (prefers-color-scheme:dark){:root{--bg:#111512;--card:#1A201B;--fg:#EEF2EE;--mute:#A3AEA5;--line:#2C352E;--green:#1F8F33;--green-d:#5FCB72;--soft:#16301D;--red:#FF6B81;--amb:#F2B233;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;font:17px/1.45 Inter,system-ui,sans-serif;color:var(--fg);background:var(--bg)}
+header{background:var(--green);color:#fff}
+.w{max-width:820px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header .w{padding-block:20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+header p{margin:0;font-size:12px;font-weight:700;letter-spacing:.12em}header h1{margin:2px 0 0;font-size:26px;line-height:1.1}
+header img{height:34px;background:#fff;border-radius:8px;padding:5px 9px}
+main.w{padding-block:18px 60px;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+h2{margin:0;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--green-d)}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{flex:1;min-width:120px;font:700 16px Inter,sans-serif;padding:12px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+.seg button.on{border-color:var(--green);background:var(--soft);color:var(--green-d)}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+label{font-size:13px;font-weight:600;color:var(--mute);display:flex;flex-direction:column;gap:4px}
+input,select{font:600 17px Inter,sans-serif;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);width:100%;min-width:0}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:16px}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);text-align:left;padding:6px;border-bottom:2px solid var(--line);white-space:nowrap}
+td{padding:6px;border-bottom:1px solid var(--line);vertical-align:middle}
+td input{padding:8px;font-size:16px}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.x{background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer;padding:4px 8px}
+.add{align-self:flex-start;font:700 15px Inter,sans-serif;background:var(--soft);color:var(--green-d);border:0;border-radius:8px;padding:10px 14px;cursor:pointer}
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.k{background:var(--soft);border-radius:12px;padding:12px}
+.k p{margin:0}.k .a{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--mute);text-transform:uppercase}.k .b{font-size:30px;font-weight:800;color:var(--green-d);font-variant-numeric:tabular-nums}
+.warn{background:rgba(200,16,46,.08);border-left:5px solid var(--red);padding:10px 12px;border-radius:8px;margin:0;font-weight:600}
+.note{font-size:14px;color:var(--mute);margin:0}
+tfoot td{font-weight:800}
+.hl{color:var(--green-d);font-weight:800}
+</style></head><body>
+<header><div class="w"><div><p>SPRING CERTIFIED QC</p><h1>AQL numune hesaplama</h1></div><img src="logo.png" alt="Spring"></div></header>
+<main class="w">
+<div class="card">
+<h2>1 · Yükleme tipi</h2>
+<div class="seg" id="tip"><button data-t="koli" class="on">Kolili</button><button data-t="aski">Askılı</button></div>
+</div>
+<div class="card">
+<h2>2 · AQL değerleri</h2>
+<div class="row">
+<label>Kontrol seviyesi<select id="lvl"><option value="0">Seviye I</option><option value="1" selected>Seviye II</option><option value="2">Seviye III</option></select></label>
+<label>Majör AQL<select id="maj"><option>1.0</option><option>1.5</option><option selected>2.5</option><option>4.0</option><option>6.5</option></select></label>
+<label>Minör AQL<select id="min"><option>1.0</option><option>1.5</option><option>2.5</option><option selected>4.0</option><option>6.5</option></select></label>
+<label class="kc">Koliden en çok ürün<input id="mx" type="number" min="1" value="5" inputmode="numeric"></label>
+</div>
+<p class="note">Spring standardı: Seviye II, majör 2,5, minör 4,0, kritik 0. Müşteri daha yüksek bir standart istiyorsa o kullanılır.</p>
+</div>
+<div class="card">
+<h2>3 · PO beden dağılımı</h2>
+<p class="note">Her satıra bir beden yazılır. Birden fazla renk varsa her renk ve beden ayrı satıra yazılır (ör. Lacivert / M).</p>
+<div class="tw"><table><thead><tr><th>Beden</th><th class="n">PO adedi</th><th class="n">Sevk adedi</th><th class="n kc">Koli adedi</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+<button class="add" id="add">+ Beden ekle</button>
+</div>
+<div class="card" id="out"></div>
+<p class="note">Hesap, ISO 2859-1 tek numune, normal kontrol tablosuna göre yapılır. Numune, PO'daki beden oranına göre bedenlere dağıtılır; küsuratlar toplam numune adedini tutacak şekilde en büyük küsurattan başlanarak yuvarlanır.</p>
+</main>
+<script>
+const LOTS=[[2,8],[9,15],[16,25],[26,50],[51,90],[91,150],[151,280],[281,500],[501,1200],[1201,3200],[3201,10000],[10001,35000],[35001,150000],[150001,500000],[500001,Infinity]];
+const CODE=[["A","A","B"],["A","B","C"],["B","C","D"],["C","D","E"],["C","E","F"],["D","F","G"],["E","G","H"],["F","H","J"],["G","J","K"],["H","K","L"],["J","L","M"],["K","M","N"],["L","N","P"],["M","P","Q"],["N","Q","R"]];
+const LET="ABCDEFGHJKLMNPQR",NS=[2,3,5,8,13,20,32,50,80,125,200,315,500,800,1250,2000];
+const Z={"6.5":0,"4.0":1,"2.5":2,"1.5":3,"1.0":4},SEQ=[1,2,3,5,7,10,14,21];
+function plan(li,aql){// ISO 2859-1 Tablo II-A, ok işaretleri çözülmüş
+  const z=Z[aql];let i=li;
+  for(let g=0;g<20;g++){
+    if(i<z){i=z;continue}
+    if(i===z)return{n:NS[i],ac:0};
+    if(i===z+1){i=z;continue}
+    if(i===z+2){i=z+3;continue}
+    const k=i-z-3;if(k<SEQ.length&&i<NS.length)return{n:NS[i],ac:SEQ[k]};
+    i=z+3+SEQ.length-1;
+  }}
+const fmt=n=>n.toLocaleString("tr-TR");
+let tip="koli";
+const S=[["8",200,"",8],["10",400,"",16],["12",400,"",16],["14",750,"",30],["16",750,"",30]];
+const rows=document.getElementById("rows");
+function addRow(r){const tr=document.createElement("tr");tr.innerHTML=`<td><input value="${r[0]}" aria-label="Beden"></td><td><input type="number" min="0" inputmode="numeric" value="${r[1]}" aria-label="PO adedi"></td><td><input type="number" min="0" inputmode="numeric" value="${r[2]}" placeholder="PO" aria-label="Sevk adedi"></td><td class="kc"><input type="number" min="0" inputmode="numeric" value="${r[3]}" aria-label="Koli adedi"></td><td><button class="x" aria-label="Satırı sil">×</button></td>`;
+  tr.querySelector(".x").onclick=()=>{tr.remove();calc()};tr.querySelectorAll("input").forEach(i=>i.oninput=calc);rows.appendChild(tr)}
+S.forEach(addRow);
+document.getElementById("add").onclick=()=>{addRow(["",0,"",0]);calc()};
+document.querySelectorAll("#tip button").forEach(b=>b.onclick=()=>{tip=b.dataset.t;document.querySelectorAll("#tip button").forEach(x=>x.classList.toggle("on",x===b));calc()});
+["lvl","maj","min","mx"].forEach(id=>document.getElementById(id).oninput=calc);
+function share(total,weights){// en büyük küsurat yöntemi
+  const W=weights.reduce((a,b)=>a+b,0);if(!W)return weights.map(()=>0);
+  const raw=weights.map(w=>w*total/W),fl=raw.map(Math.floor);let left=total-fl.reduce((a,b)=>a+b,0);
+  raw.map((v,i)=>[v-fl[i],i]).sort((a,b)=>b[0]-a[0]).forEach(([,i])=>{if(left>0){fl[i]++;left--}});return fl}
+function split(n,k){if(!k)return"";const b=Math.floor(n/k),r=n%k;return r?`${r} koliden ${b+1}, ${k-r} koliden ${b}`:`${k} koliden ${b}`}
+function calc(){
+  const kol=tip==="koli";document.querySelectorAll(".kc").forEach(e=>e.style.display=kol?"":"none");
+  const R=[...rows.children].map(tr=>{const v=[...tr.querySelectorAll("input")].map(i=>i.value);return{b:v[0]||"?",po:+v[1]||0,sv:v[2]===""?null:+v[2]||0,kl:+v[3]||0}}).filter(r=>r.po>0);
+  const out=document.getElementById("out");
+  if(!R.length){out.innerHTML="<h2>Sonuç</h2><p class='note'>PO adetlerini girin.</p>";return}
+  const poT=R.reduce((a,r)=>a+r.po,0),svT=R.reduce((a,r)=>a+(r.sv==null?r.po:r.sv),0);
+  const lot=svT,lv=+document.getElementById("lvl").value;
+  const li=LOTS.findIndex(([a,b])=>lot>=a&&lot<=b);
+  if(li<0){out.innerHTML="<h2>Sonuç</h2><p class='warn'>Parti adedi 2'den küçük olamaz.</p>";return}
+  const L=CODE[li][lv],idx=LET.indexOf(L);
+  const pm=plan(idx,document.getElementById("maj").value),pn=plan(idx,document.getElementById("min").value);
+  let n=Math.max(NS[idx],pm.n,pn.n),all=false;if(n>=lot){n=lot;all=true}
+  const ns=share(n,R.map(r=>r.po));
+  let h="<h2>Sonuç</h2><div class='big'>"+
+   `<div class="k"><p class="a">Parti (sevk) adedi</p><p class="b">${fmt(lot)}</p></div>`+
+   `<div class="k"><p class="a">Kontrol adedi</p><p class="b">${fmt(n)}</p></div>`;
+  const mx=Math.max(1,+document.getElementById("mx").value||5);let ks=[],kT=0,koliT=0,warn=[];
+  if(kol){
+    koliT=R.reduce((a,r)=>a+r.kl,0);
+    ks=R.map((r,i)=>Math.ceil(ns[i]/mx));
+    R.forEach((r,i)=>{if(r.kl&&ks[i]>r.kl){warn.push(`${r.b} bedeninde ${r.kl} koli var; ${ns[i]} ürün için bir koliden ${mx}'ten fazla ürün alınması gerekir.`);ks[i]=r.kl}});
+    const sq=Math.ceil(Math.sqrt(koliT)-1e-9);kT=ks.reduce((a,b)=>a+b,0);
+    if(koliT&&kT<sq){// karekök alt sınırı: eksik koliler PO oranına göre eklenir
+      let need=sq-kT;const order=R.map((r,i)=>[r.po/poT*sq-ks[i],i]).sort((a,b)=>b[0]-a[0]);
+      while(need>0){let moved=false;for(const[,i]of order){if(need>0&&ks[i]<R[i].kl&&ks[i]<ns[i]){ks[i]++;need--;moved=true}}if(!moved)break}
+      kT=ks.reduce((a,b)=>a+b,0)}
+    h+=`<div class="k"><p class="a">Açılacak koli</p><p class="b">${fmt(kT)}</p></div>`;
+    if(koliT)h+=`</div><p class="note">Toplam ${fmt(koliT)} koli. Karekök alt sınırı: √${fmt(koliT)} = ${(Math.sqrt(koliT)).toLocaleString("tr-TR",{maximumFractionDigits:2})} → en az ${sq} koli. Bir koliden en çok ${mx} ürün alındığı için her beden için koli = beden kontrol adedi ÷ ${mx} (yukarı yuvarlanır).</p>`;else h+="</div>";
+  }else h+="</div>";
+  if(all)warn.push("Numune adedi parti adedine eşit ya da büyük: ürünlerin tamamı kontrol edilir.");
+  if(pm.n!==NS[idx]||pn.n!==NS[idx])warn.push(`Tabloda ok işareti var: bu AQL için numune ${fmt(n)} adet alınır.`);
+  h+=`<div class="tw"><table><thead><tr><th>Beden</th><th class="n">PO</th><th class="n">PO oranı</th><th class="n">Kontrol adedi</th>${kol?'<th class="n">Koli</th><th>Koli içi dağılım</th>':""}</tr></thead><tbody>`;
+  R.forEach((r,i)=>{h+=`<tr><td>${r.b.replace(/[<&]/g,"")}</td><td class="n">${fmt(r.po)}</td><td class="n">%${(r.po/poT*100).toLocaleString("tr-TR",{maximumFractionDigits:1})}</td><td class="n hl">${ns[i]}</td>${kol?`<td class="n">${ks[i]}</td><td>${split(ns[i],ks[i])}</td>`:""}</tr>`});
+  h+=`</tbody><tfoot><tr><td>Toplam</td><td class="n">${fmt(poT)}</td><td class="n">%100</td><td class="n hl">${fmt(n)}</td>${kol?`<td class="n">${kT}</td><td></td>`:""}</tr></tfoot></table></div>`;
+  h+=`<div class="tw"><table><thead><tr><th>Hata sınıfı</th><th class="n">AQL</th><th class="n">Kabul</th><th class="n">Red</th></tr></thead><tbody>`+
+   `<tr><td>Kritik</td><td class="n">0</td><td class="n">0</td><td class="n">1</td></tr>`+
+   `<tr><td>Majör</td><td class="n">${document.getElementById("maj").value.replace(".",",")}</td><td class="n">${pm.ac}</td><td class="n">${pm.ac+1}</td></tr>`+
+   `<tr><td>Minör</td><td class="n">${document.getElementById("min").value.replace(".",",")}</td><td class="n">${pn.ac}</td><td class="n">${pn.ac+1}</td></tr></tbody></table></div>`;
+  h+=kol?`<p class="note">Koliler istifin üstünden, ortasından ve altından, önden ve arkadan seçilir. Ürünler kolinin üst, orta ve alt katlarından alınır.</p>`:`<p class="note">Askılı üründe koli hesabı yoktur. Her bedenin kontrol adedi, o bedenin raylarının başından, ortasından ve sonundan alınır; seçilen ürünler boş bir raya alınır.</p>`;
+  warn.forEach(w=>h+=`<p class="warn">${w}</p>`);
+  out.innerHTML=h}
+calc();
+</script>
+</body></html>
