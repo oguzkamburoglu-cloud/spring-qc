@@ -1,0 +1,188 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex">
+<title>AQL Sample Calculator</title><link rel="apple-touch-icon" href="ikon/aql-apple-touch-icon.png"><link rel="icon" type="image/png" href="ikon/aql-192.png"><link rel="manifest" href="aql-en.webmanifest"><meta name="apple-mobile-web-app-title" content="AQL">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+<style>
+:root{--bg:#F6F8F5;--card:#fff;--fg:#1B211C;--mute:#5B665E;--line:#DDE4DD;--green:#21A038;--green-d:#17812C;--soft:#E6F4EA;--red:#C8102E;--amb:#B26B00}
+@media (prefers-color-scheme:dark){:root{--bg:#111512;--card:#1A201B;--fg:#EEF2EE;--mute:#A3AEA5;--line:#2C352E;--green:#1F8F33;--green-d:#5FCB72;--soft:#16301D;--red:#FF6B81;--amb:#F2B233;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;font:17px/1.45 Inter,system-ui,sans-serif;color:var(--fg);background:var(--bg)}
+header{background:var(--green);color:#fff}
+.w{max-width:820px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header .w{padding-block:20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+header p{margin:0;font-size:12px;font-weight:700;letter-spacing:.12em}header h1{margin:2px 0 0;font-size:26px;line-height:1.1}
+header img{height:34px;background:#fff;border-radius:8px;padding:5px 9px}
+main.w{padding-block:18px 60px;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+h2{margin:0;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--green-d)}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{flex:1;min-width:120px;font:700 16px Inter,sans-serif;padding:12px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+.seg button.on{border-color:var(--green);background:var(--soft);color:var(--green-d)}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+label{font-size:13px;font-weight:600;color:var(--mute);display:flex;flex-direction:column;gap:4px}
+input,select{font:600 17px Inter,sans-serif;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);width:100%;min-width:0}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:16px}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);text-align:left;padding:6px;border-bottom:2px solid var(--line);white-space:nowrap}
+td{padding:6px;border-bottom:1px solid var(--line);vertical-align:middle}
+td input{padding:8px;font-size:16px}
+#rows td:first-child input{min-width:130px}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.x{background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer;padding:4px 8px}
+.add{align-self:flex-start;font:700 15px Inter,sans-serif;background:var(--soft);color:var(--green-d);border:0;border-radius:8px;padding:10px 14px;cursor:pointer}
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.k{background:var(--soft);border-radius:12px;padding:12px}
+.k p{margin:0}.k .a{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--mute);text-transform:uppercase}.k .b{font-size:30px;font-weight:800;color:var(--green-d);font-variant-numeric:tabular-nums}
+.warn{background:rgba(200,16,46,.08);border-left:5px solid var(--red);padding:10px 12px;border-radius:8px;margin:0;font-weight:600}
+.note{font-size:14px;color:var(--mute);margin:0}
+tfoot td{font-weight:800}
+.hl{color:var(--green-d);font-weight:800}
+.up{display:flex;flex-direction:column;gap:6px;border:2px dashed var(--green);border-radius:12px;padding:12px;background:var(--soft)}
+.upb{font-size:15px;font-weight:700;color:var(--green-d)}.upb input{background:var(--card)}
+#upmsg.err{color:var(--red);font-weight:700}#upmsg.ok{color:var(--green-d);font-weight:700}
+</style></head><body>
+<header><div class="w"><div><p>SPRING CERTIFIED QC</p><h1>AQL sample calculator</h1></div><img src="logo.png" alt="Spring"></div></header>
+<main class="w">
+<div class="card">
+<h2>1 · Shipment type</h2>
+<div class="seg" id="tip"><button data-t="koli" class="on">Boxed</button><button data-t="aski">Hanging (GOH)</button></div>
+</div>
+<div class="card">
+<h2>2 · AQL values</h2>
+<div class="row">
+<label>Inspection level<select id="lvl"><option value="0">Level I</option><option value="1" selected>Level II</option><option value="2">Level III</option></select></label>
+<label>Major AQL<select id="maj"><option>1.0</option><option>1.5</option><option selected>2.5</option><option>4.0</option><option>6.5</option></select></label>
+<label>Minor AQL<select id="min"><option>1.0</option><option>1.5</option><option>2.5</option><option selected>4.0</option><option>6.5</option></select></label>
+<label class="kc">Max. garments per carton<input id="mx" type="number" min="1" value="5" inputmode="numeric"></label>
+</div>
+<p class="note" id="std">The Spring standard is preset: Level II, major 2.5, minor 4.0, critical 0. If the customer requires a higher standard, the values are changed.</p>
+<button class="add" id="rst" hidden>Back to the Spring standard</button>
+</div>
+<div class="card">
+<h2>3 · PO size breakdown</h2>
+<div class="up"><label class="upb">Upload packing list (Excel or CSV)<input type="file" id="ceki" accept=".xlsx,.xls,.csv"></label><p class="note">Sizes, quantities and carton details from the packing list are entered into the table automatically. After the upload the quantities are checked; if the PO quantity is different, it is corrected.</p><p class="note" id="upmsg" hidden></p></div>
+<p class="note">One size per row. If there is more than one colour, each colour and size goes on its own row (e.g. Navy / M).</p>
+<div class="tw"><table><thead><tr><th>Size</th><th class="n">PO qty</th><th class="n">Shipped qty</th><th class="n kc">Cartons</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+<button class="add" id="add">+ Add size</button>
+</div>
+<div class="card" id="out"></div>
+<p class="note">The calculation follows the ISO 2859-1 single sampling, normal inspection table. The sample is distributed across sizes by the size ratio in the PO; fractions are rounded starting from the largest remainder so that the total sample size is kept.</p>
+</main>
+<script src="xlsx.full.min.js"></script>
+<script>
+const LOTS=[[2,8],[9,15],[16,25],[26,50],[51,90],[91,150],[151,280],[281,500],[501,1200],[1201,3200],[3201,10000],[10001,35000],[35001,150000],[150001,500000],[500001,Infinity]];
+const CODE=[["A","A","B"],["A","B","C"],["B","C","D"],["C","D","E"],["C","E","F"],["D","F","G"],["E","G","H"],["F","H","J"],["G","J","K"],["H","K","L"],["J","L","M"],["K","M","N"],["L","N","P"],["M","P","Q"],["N","Q","R"]];
+const LET="ABCDEFGHJKLMNPQR",NS=[2,3,5,8,13,20,32,50,80,125,200,315,500,800,1250,2000];
+const Z={"6.5":0,"4.0":1,"2.5":2,"1.5":3,"1.0":4},SEQ=[1,2,3,5,7,10,14,21];
+function plan(li,aql){// ISO 2859-1 Table II-A, arrows resolved
+  const z=Z[aql];let i=li;
+  for(let g=0;g<20;g++){
+    if(i<z){i=z;continue}
+    if(i===z)return{n:NS[i],ac:0};
+    if(i===z+1){i=z;continue}
+    if(i===z+2){i=z+3;continue}
+    const k=i-z-3;if(k<SEQ.length&&i<NS.length)return{n:NS[i],ac:SEQ[k]};
+    i=z+3+SEQ.length-1;
+  }}
+const fmt=n=>n.toLocaleString("en-GB");
+let tip="koli";
+const S=[["","","",""],["","","",""],["","","",""]];
+const rows=document.getElementById("rows");
+const esc=v=>String(v).replace(/[&"<>]/g,c=>({"&":"&amp;",'"':"&quot;","<":"&lt;",">":"&gt;"})[c]);
+function addRow(r){r=r.map(esc);const tr=document.createElement("tr");tr.innerHTML=`<td><input value="${r[0]}" aria-label="Size"></td><td><input type="number" min="0" inputmode="numeric" value="${r[1]}" aria-label="PO qty"></td><td><input type="number" min="0" inputmode="numeric" value="${r[2]}" placeholder="PO" aria-label="Shipped qty"></td><td class="kc"><input type="number" min="0" inputmode="numeric" value="${r[3]}" aria-label="Cartons"></td><td><button class="x" aria-label="Delete row">×</button></td>`;
+  tr.querySelector(".x").onclick=()=>{tr.remove();calc()};tr.querySelectorAll("input").forEach(i=>i.oninput=calc);rows.appendChild(tr)}
+S.forEach(addRow);
+document.getElementById("add").onclick=()=>{addRow(["","","",""]);calc()};
+document.querySelectorAll("#tip button").forEach(b=>b.onclick=()=>{tip=b.dataset.t;document.querySelectorAll("#tip button").forEach(x=>x.classList.toggle("on",x===b));calc()});
+const STD={lvl:"1",maj:"2.5",min:"4.0",mx:"5"};
+function stdChk(){const on=Object.keys(STD).every(k=>document.getElementById(k).value===STD[k]);document.getElementById("rst").hidden=on;document.getElementById("std").textContent=on?"The Spring standard is preset: Level II, major 2.5, minor 4.0, critical 0, max. 5 garments per carton. If the customer requires a higher standard, the values are changed.":"The values differ from the Spring standard: the customer standard is in use."}
+["lvl","maj","min","mx"].forEach(id=>document.getElementById(id).oninput=()=>{stdChk();calc()});
+document.getElementById("rst").onclick=()=>{Object.keys(STD).forEach(k=>document.getElementById(k).value=STD[k]);stdChk();calc()};
+// Packing list
+const norm=v=>String(v==null?"":v).toLocaleLowerCase("tr-TR").replace(/\s+/g," ").trim();
+const num=v=>{if(typeof v==="number")return v;const t=String(v||"").replace(/\s/g,"").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",",".");const n=parseFloat(t);return isNaN(n)?0:n};
+const KW={size:/^(beden|size|sz|ölçü|yaş|age)\b|beden|size/,qty:/^(adet|toplam adet|miktar|qty|quantity|pcs|pieces|total qty|total pcs|toplam)$|adet|qty|quantity|pcs|pieces|miktar/,per:/koli (başı|içi)|koli içi adet|per (ctn|carton)|pcs ?\/ ?ctn|qty ?\/ ?ctn|adet ?\/ ?koli|\/ ?ctn/,ctn:/^(koli|koli adedi|koli sayısı|ctns?|cartons?|ctn qty|no of ctns?|# ?ctns?|carton qty|total ctns?)$|koli adedi|koli sayısı|no\.? of ctn|ctn qty|total ctn/,cno:/koli no|koli numara|ctn ?no|carton ?no|carton ?#|c\/no|koli ?#/,color:/^(renk|colou?r)/};
+const SIZE=/^(xxs|xs|s|m|l|xl|xxl|xxxl|[2-6]xl|\d{1,3}(\/\d{1,3})?|\d{1,2}-\d{1,2} ?(y|yaş|ay|m)?|\d{1,2} ?(y|yaş|ay|m|yrs?)|one ?size|std|tek ?beden)$/i;
+function rangeCount(v){const m=String(v||"").match(/(\d+)\s*[-–~]\s*(\d+)/);if(m){const a=+m[1],b=+m[2];return b>=a?b-a+1:1}return String(v||"").trim()?1:0}
+function parseCeki(A){// A: array of rows
+  let hi=-1,col={};
+  for(let r=0;r<Math.min(A.length,40);r++){const H=A[r].map(norm),c={};
+    H.forEach((h,j)=>{if(!h)return;if(c.per==null&&KW.per.test(h))c.per=j;else if(c.cno==null&&KW.cno.test(h))c.cno=j;else if(c.ctn==null&&KW.ctn.test(h))c.ctn=j;else if(c.size==null&&KW.size.test(h))c.size=j;else if(c.color==null&&KW.color.test(h))c.color=j;else if(c.qty==null&&KW.qty.test(h))c.qty=j});
+    const sizeCols=H.map((h,j)=>[h,j]).filter(([h,j])=>h&&SIZE.test(h)&&!Object.values(c).includes(j)).map(([,j])=>j);
+    if(c.size!=null&&(c.qty!=null||c.per!=null)){hi=r;col=c;break}
+    if(sizeCols.length>=2){hi=r;col=c;col.wide=sizeCols;break}
+  }
+  if(hi<0)return null;
+  const H=A[hi],agg=new Map();let ctnT=0;
+  const add=(k,q,kl)=>{if(!k||q<=0)return;const o=agg.get(k)||{q:0,k:0};o.q+=q;o.k+=kl;agg.set(k,o)};
+  for(let r=hi+1;r<A.length;r++){const R=A[r];if(!R||R.every(v=>String(v==null?"":v).trim()===""))continue;
+    const first=norm(R.find(v=>String(v==null?"":v).trim()!==""));if(/^(toplam|total|grand total|genel toplam)/.test(first))continue;
+    const hasK=col.ctn!=null||col.cno!=null;let kl=col.ctn!=null?num(R[col.ctn]):col.cno!=null?rangeCount(R[col.cno]):0;if(hasK)ctnT+=kl;
+    const clr=col.color!=null?String(R[col.color]||"").trim():"";
+    if(col.wide){const qs=col.wide.map(j=>num(R[j])),tot=qs.reduce((a,b)=>a+b,0);if(!tot)continue;
+      const mult=col.per!=null||col.ctn!=null||col.cno!=null?(kl||1):1;
+      col.wide.forEach((j,i)=>{if(qs[i]>0){const q=col.per!=null||(col.ctn!=null&&col.qty==null)?qs[i]*mult:qs[i];add((clr?clr+" / ":"")+String(H[j]).trim(),q,kl)}})}
+    else{let sz=String(R[col.size]==null?"":R[col.size]).trim();if(!sz)continue;
+      const q=col.qty!=null&&num(R[col.qty])?num(R[col.qty]):col.per!=null?num(R[col.per])*(kl||1):0;
+      add((clr?clr+" / ":"")+sz,q,kl)}
+  }
+  return agg.size?{rows:[...agg].map(([b,o])=>[b,Math.round(o.q),Math.round(o.k)]),ctn:ctnT,mixed:!!col.wide}:null}
+document.getElementById("ceki").onchange=async e=>{const f=e.target.files[0],m=document.getElementById("upmsg");if(!f)return;m.hidden=false;m.className="note";m.textContent="Reading the file…";
+  try{if(typeof XLSX==="undefined")throw new Error("lib");const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});let res=null;
+    for(const n of wb.SheetNames){res=parseCeki(XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,defval:"",raw:true}));if(res)break}
+    if(!res){m.className="note err";m.textContent="Size and quantity columns were not found in the packing list. The header row must contain “Size” and “Qty”. Quantities can also be entered into the table by hand.";return}
+    rows.innerHTML="";res.rows.forEach(([b,q,k])=>addRow([b,q,q,k||""]));
+    const tq=res.rows.reduce((a,r)=>a+r[1],0),tk=res.ctn;
+    m.className="note ok";m.textContent=`${res.rows.length} sizes read: ${fmt(tq)} pieces in total${tk?", "+fmt(tk)+" cartons":""}.${res.mixed&&tk?" Mixed (assorted) cartons: the carton count of each size is the number of cartons containing that size.":""}${tk?"":" The packing list has no carton details: the number of cartons is entered by hand."} The PO quantity was filled with the packing list quantity; if the PO is different, the PO quantity is corrected.`;calc()}
+  catch(err){m.className="note err";m.textContent=err.message==="lib"?"The Excel reader could not be loaded. Check the internet connection or use a CSV file.":"The file could not be read. Check that it is an Excel (.xlsx) or CSV file."}};
+function share(total,weights){// largest remainder method
+  const W=weights.reduce((a,b)=>a+b,0);if(!W)return weights.map(()=>0);
+  const raw=weights.map(w=>w*total/W),fl=raw.map(Math.floor);let left=total-fl.reduce((a,b)=>a+b,0);
+  raw.map((v,i)=>[v-fl[i],i]).sort((a,b)=>b[0]-a[0]).forEach(([,i])=>{if(left>0){fl[i]++;left--}});return fl}
+function split(n,k,u){if(!k)return"";const b=Math.floor(n/k),r=n%k,c=x=>x+" carton"+(x>1?"s":"");return r?`${b+1} each from ${c(r)}, ${b} each from ${c(k-r)}`:`${b} each from ${c(k)}`}
+function calc(){
+  const kol=tip==="koli";document.querySelectorAll(".kc").forEach(e=>e.style.display=kol?"":"none");
+  const R=[...rows.children].map(tr=>{const v=[...tr.querySelectorAll("input")].map(i=>i.value);return{b:v[0]||"?",po:+v[1]||0,sv:v[2]===""?null:+v[2]||0,kl:+v[3]||0}}).filter(r=>r.po>0);
+  const out=document.getElementById("out");
+  if(!R.length){out.innerHTML="<h2>Result</h2><p class='note'>Upload a packing list or enter the sizes and PO quantities.</p>";return}
+  const poT=R.reduce((a,r)=>a+r.po,0),svT=R.reduce((a,r)=>a+(r.sv==null?r.po:r.sv),0);
+  const lot=svT,lv=+document.getElementById("lvl").value;
+  const li=LOTS.findIndex(([a,b])=>lot>=a&&lot<=b);
+  if(li<0){out.innerHTML="<h2>Result</h2><p class='warn'>The lot size cannot be less than 2.</p>";return}
+  const L=CODE[li][lv],idx=LET.indexOf(L);
+  const pm=plan(idx,document.getElementById("maj").value),pn=plan(idx,document.getElementById("min").value);
+  let n=Math.max(NS[idx],pm.n,pn.n),all=false;if(n>=lot){n=lot;all=true}
+  const ns=share(n,R.map(r=>r.po));
+  let h="<h2>Result</h2><div class='big'>"+
+   `<div class="k"><p class="a">Lot (shipped) quantity</p><p class="b">${fmt(lot)}</p></div>`+
+   `<div class="k"><p class="a">Sample size</p><p class="b">${fmt(n)}</p></div>`;
+  const mx=Math.max(1,+document.getElementById("mx").value||5);let ks=[],kT=0,koliT=0,warn=[];
+  if(kol){
+    koliT=R.reduce((a,r)=>a+r.kl,0);
+    ks=R.map((r,i)=>Math.ceil(ns[i]/mx));
+    R.forEach((r,i)=>{if(r.kl&&ks[i]>r.kl){warn.push(`Size ${r.b} has ${r.kl} cartons; for ${ns[i]} garments more than ${mx} garments would have to be taken from one carton.`);ks[i]=r.kl}});
+    const sq=Math.ceil(Math.sqrt(koliT)-1e-9);kT=ks.reduce((a,b)=>a+b,0);
+    if(koliT&&kT<sq){// square-root minimum: missing cartons are added by PO ratio
+      let need=sq-kT;const order=R.map((r,i)=>[r.po/poT*sq-ks[i],i]).sort((a,b)=>b[0]-a[0]);
+      while(need>0){let moved=false;for(const[,i]of order){if(need>0&&ks[i]<R[i].kl&&ks[i]<ns[i]){ks[i]++;need--;moved=true}}if(!moved)break}
+      kT=ks.reduce((a,b)=>a+b,0)}
+    h+=`<div class="k"><p class="a">Cartons to open</p><p class="b">${fmt(kT)}</p></div>`;
+    if(koliT)h+=`</div><p class="note">${fmt(koliT)} cartons in total. Square-root minimum: √${fmt(koliT)} = ${(Math.sqrt(koliT)).toLocaleString("en-GB",{maximumFractionDigits:2})} → at least ${sq} cartons. As at most ${mx} garments are taken from one carton, cartons per size = sample size of the size ÷ ${mx} (rounded up).</p>`;else h+="</div>";
+  }else{
+    ks=R.map(r=>{const q=r.sv==null?r.po:r.sv;return Math.min(q,Math.ceil(q/50)*5)});
+    R.forEach((r,i)=>{if(ns[i]>ks[i])warn.push(`In size ${r.b} the sample size (${ns[i]}) exceeds the quantity that can be taken under the rule of max. 5 garments per 50 hangers (${ks[i]}).`)});
+    h+=`</div><p class="note">At most 5 garments are taken from every 50 hangers. Garments are selected across all rails of the size.</p>`;
+  }
+  if(all)warn.push("The sample size is equal to or larger than the lot size: all garments are inspected.");
+  if(pm.n!==NS[idx]||pn.n!==NS[idx])warn.push(`The table has an arrow: for this AQL the sample size is ${fmt(n)} pieces.`);
+  h+=`<div class="tw"><table><thead><tr><th>Size</th><th class="n">PO</th><th class="n">PO ratio</th><th class="n">Sample size</th>${kol?'<th class="n">Cartons to open</th><th>To take from each carton</th>':'<th class="n">Max. allowed</th><th></th>'}</tr></thead><tbody>`;
+  R.forEach((r,i)=>{h+=`<tr><td>${esc(r.b)}</td><td class="n">${fmt(r.po)}</td><td class="n">${(r.po/poT*100).toLocaleString("en-GB",{maximumFractionDigits:1})}%</td><td class="n hl">${ns[i]}</td><td class="n">${ks[i]}</td><td>${kol?split(ns[i],ks[i],"koli"):""}</td></tr>`});
+  h+=`</tbody><tfoot><tr><td>Total</td><td class="n">${fmt(poT)}</td><td class="n">100%</td><td class="n hl">${fmt(n)}</td><td class="n">${kol?kT:""}</td><td></td></tr></tfoot></table></div>`;
+  h+=`<div class="tw"><table><thead><tr><th>Defect class</th><th class="n">AQL</th><th class="n">Accept</th><th class="n">Reject</th></tr></thead><tbody>`+
+   `<tr><td>Critical</td><td class="n">0</td><td class="n">0</td><td class="n">1</td></tr>`+
+   `<tr><td>Major</td><td class="n">${document.getElementById("maj").value}</td><td class="n">${pm.ac}</td><td class="n">${pm.ac+1}</td></tr>`+
+   `<tr><td>Minor</td><td class="n">${document.getElementById("min").value}</td><td class="n">${pn.ac}</td><td class="n">${pn.ac+1}</td></tr></tbody></table></div>`;
+  h+=kol?`<p class="note">Cartons are selected from the top, middle and bottom of the stack, front and back. Garments are taken from the top, middle and bottom layers of the carton.</p>`:`<p class="note">For hanging goods, garments are taken from the start, middle and end of the rails of each size; at most 5 garments from every 50 hangers. Selected garments are moved to an empty rail.</p>`;
+  warn.forEach(w=>h+=`<p class="warn">${w}</p>`);
+  out.innerHTML=h}
+calc();
+</script>
+</body></html>
