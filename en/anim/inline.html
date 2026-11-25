@@ -1,0 +1,53 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Inline Inspection</title><style>*{margin:0;padding:0;box-sizing:border-box}html,body{height:100%;background:#17812C;overflow:hidden}#st{position:absolute;left:0;top:0;width:1664px;height:450px;overflow:hidden;transform-origin:0 0;font-family:Arial,Helvetica,sans-serif;color:#fff}
+#cap{position:absolute;left:0;top:0;width:100%;height:60px;font-size:32px;font-weight:700;line-height:60px;white-space:nowrap;opacity:0;transition:opacity .3s}
+#cap b{display:inline-block;min-width:54px;height:46px;line-height:46px;padding:0 10px;margin-right:16px;border-radius:8px;background:#fff;color:#17812C;text-align:center}
+#g{position:absolute;left:0;top:338px;width:100%;border-top:4px dashed rgba(255,255,255,.4)}
+.s{position:absolute;top:0;height:100%}
+.p{position:absolute;top:236px;width:100px;height:100px;opacity:.4;transition:opacity .3s}
+.p svg{width:100px;height:100px;fill:none;stroke:#fff;stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
+.on .p,.done .p{opacity:1}
+.l{position:absolute;top:352px;width:100%;text-align:center;font-size:24px;line-height:1.15;padding:0 4px;opacity:.65}
+.l b{display:block;font-size:24px}
+.on .l,.done .l{opacity:1}
+.done .l b{color:#FFD23F}
+.o{position:absolute;display:none;font-size:34px;font-weight:700;text-align:center;white-space:nowrap}
+.on .o{display:block}
+.pop .o{left:-20px;top:-44px;width:140px;color:#FFD23F}
+.pop svg{animation:b .6s ease-in-out infinite}
+.scan .o{left:0;top:20px;width:46px;height:46px;border:6px solid #FFD23F;border-radius:50%;animation:sc 1.1s ease-in-out infinite alternate}
+.scan .o:after{content:"";position:absolute;left:32px;top:34px;width:8px;height:26px;background:#FFD23F;transform:rotate(-45deg)}
+.meas .o{left:0;top:44px;height:14px;background:#FFD23F;border-radius:3px;animation:me 1.1s ease-in-out infinite alternate}
+.thru .o{left:-70px;top:34px;width:44px;height:36px;background:#fff;border-radius:6px;animation:th 1.1s linear infinite}
+.stamp .o{left:38px;top:-6px;width:50px;height:50px;line-height:50px;border-radius:50%;background:#C5221F;font-size:26px;animation:st .75s ease-in infinite}
+.flash .o{left:-30px;top:-30px;width:160px;height:160px;border-radius:50%;background:#fff;animation:fl .75s linear infinite}
+.rot svg{animation:ro 1.5s linear infinite}
+.rot3 svg{animation:r3 1.1s ease-in-out infinite}
+.flip svg{animation:fp 1.1s ease-in-out infinite}
+.str svg{animation:sx .8s ease-in-out infinite alternate}
+.up svg{animation:up 1.1s ease-in-out infinite}
+@keyframes b{50%{transform:translateY(-10px) scale(1.06)}}
+@keyframes sc{from{transform:translate(0,0)}to{transform:translate(52px,20px)}}
+@keyframes me{from{width:8px}to{width:100px}}
+@keyframes th{to{transform:translateX(190px)}}
+@keyframes st{0%{transform:scale(2.4);opacity:0}40%,100%{transform:scale(1);opacity:1}}
+@keyframes fl{0%,60%,100%{opacity:0}20%{opacity:.9}}
+@keyframes ro{to{transform:rotate(360deg)}}
+@keyframes r3{50%{transform:rotateY(180deg)}}
+@keyframes fp{50%{transform:scaleX(-1)}}
+@keyframes sx{to{transform:scaleX(1.3)}}
+@keyframes up{50%{transform:translateY(-46px)}}
+#c{position:absolute;left:-110px;top:132px;width:90px;height:210px}
+#c svg{width:90px;height:210px;overflow:visible}
+.lg{transform-origin:45px 128px}.ar{transform-origin:52px 78px}
+.walk .l1{animation:w .36s linear infinite alternate}.walk .l2{animation:w .36s linear infinite alternate-reverse}
+.walk{animation:bo .36s linear infinite alternate}
+.act .ar{animation:a .45s ease-in-out infinite alternate}
+@keyframes w{from{transform:rotate(-24deg)}to{transform:rotate(24deg)}}
+@keyframes bo{to{margin-top:-5px}}
+@keyframes a{from{transform:rotate(-95deg)}to{transform:rotate(-50deg)}}</style></head><body><div id="st"><div id="cap"></div><div id="g"></div><div class="s" style="left:0px;width:178px"><div class="p" style="left:39px"><svg viewBox="0 0 48 48"><path d="M5 13h14l4 5h20v22H5z"/></svg><div class="o"></div></div><p class="l"><b>1</b>Preparation</p></div><div class="s" style="left:178px;width:191px"><div class="p" style="left:46px"><svg viewBox="0 0 48 48"><path d="M4 44V22l12 7v-7l12 7V8h8v36zM12 36h4M22 36h4M32 36h4"/></svg><div class="o"></div></div><p class="l"><b>2</b>Factory walk-through</p></div><div class="s" style="left:369px;width:133px"><div class="p" style="left:16px"><svg viewBox="0 0 48 48"><path d="M6 6v36h38M14 34V22M24 34V12M34 34V18"/></svg><div class="o"></div></div><p class="l"><b>3</b>Line data</p></div><div class="s" style="left:502px;width:165px"><div class="p" style="left:32px"><svg viewBox="0 0 48 48"><circle cx="11" cy="35" r="6"/><circle cx="29" cy="35" r="6"/><path d="M15 30 36 5M25 30 4 5"/></svg><div class="o"></div></div><p class="l"><b>4</b>Cut · print · embroidery</p></div><div class="s" style="left:667px;width:133px"><div class="p" style="left:16px"><svg viewBox="0 0 48 48"><path d="M16 6 5 13l5 8 5-3v24h18V18l5 3 5-8-11-7c-3 4-13 4-16 0z"/></svg><div class="o"></div></div><p class="l"><b>5–6</b>In-line check</p></div><div class="s" style="left:800px;width:134px"><div class="p" style="left:17px"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16"/><circle cx="19" cy="20" r="2"/><circle cx="29" cy="20" r="2"/><circle cx="19" cy="29" r="2"/><circle cx="29" cy="29" r="2"/></svg><div class="o"></div></div><p class="l"><b>7–9</b>Setting · pull test</p></div><div class="s" style="left:934px;width:178px"><div class="p" style="left:39px"><svg viewBox="0 0 48 48"><path d="M4 16 24 8l20 8-20 8zM4 24l20 8 20-8M4 32l20 8 20-8"/></svg><div class="o"></div></div><p class="l"><b>10</b>Interlining</p></div><div class="s" style="left:1112px;width:134px"><div class="p" style="left:17px"><svg viewBox="0 0 48 48"><rect x="7" y="4" width="34" height="40" rx="3"/><circle cx="24" cy="27" r="11"/><path d="M12 10h6M17 27c4-4 9 4 14 0"/></svg><div class="o"></div></div><p class="l"><b>11</b>Wash · first batch</p></div><div class="s" style="left:1246px;width:133px"><div class="p" style="left:16px"><svg viewBox="0 0 48 48"><path d="M18 4h12M20 4v16L8 40a3 3 0 0 0 3 4h26a3 3 0 0 0 3-4L28 20V4M13 32h22"/></svg><div class="o"></div></div><p class="l"><b>12</b>Wash test</p></div><div class="s" style="left:1379px;width:151px"><div class="p" style="left:26px"><svg viewBox="0 0 48 48"><path d="M6 16 24 8l18 8v20l-18 8-18-8zM6 16l18 8 18-8M24 24v20"/></svg><div class="o"></div></div><p class="l"><b>13</b>Packing · Pre‑Final</p></div><div class="s" style="left:1530px;width:134px"><div class="p" style="left:17px"><svg viewBox="0 0 48 48"><rect x="10" y="5" width="28" height="38" rx="2"/><path d="M16 15h16M16 22h16M16 29h8M28 33l3 3 6-7"/></svg><div class="o"></div></div><p class="l"><b>•</b>Report</p></div><div id="c"><svg viewBox="0 0 90 210"><rect class="lg l1" x="38" y="124" width="14" height="80" rx="6" fill="#201E1D"/><rect class="lg l2" x="38" y="124" width="14" height="80" rx="6" fill="#3A3634"/><rect x="22" y="62" width="46" height="74" rx="14" fill="#fff"/><path d="M35 64 45 96 55 64" fill="none" stroke="#21A038" stroke-width="4"/><rect x="39" y="94" width="12" height="15" rx="2" fill="#21A038"/><circle cx="45" cy="34" r="23" fill="#F2C9A5"/><path d="M22 32c0-30 46-30 46 0-12-14-34-14-46 0z" fill="#201E1D"/><circle cx="24" cy="18" r="9" fill="#201E1D"/><circle cx="55" cy="36" r="2.6" fill="#201E1D"/><rect class="ar" x="46" y="72" width="13" height="56" rx="6" fill="#F2C9A5" stroke="#fff" stroke-width="2"/></svg></div></div><script>function fit(){var w=innerWidth,h=innerHeight,k=Math.min(w/1664,h/450),e=document.getElementById("st");e.style.transform="translate("+(w-1664*k)/2+"px,"+(h-450*k)/2+"px) scale("+k+")"}fit();addEventListener("resize",fit);</script><script>var S=[{"x": 44, "n": 1, "t": "Preparing for the Inline Inspection", "a": "pop", "k": ["✓", "✓✓", "✓✓✓"]}, {"x": 229, "n": 2, "t": "Factory walk-through: reminder", "a": "scan", "k": null}, {"x": 390, "n": 3, "t": "Line data is checked", "a": "scan", "k": null}, {"x": 539, "n": 4, "t": "Cutting, printing and embroidery", "a": "pop", "k": null}, {"x": 688, "n": "5–6", "t": "In-line check on the sewing line and when a defect is found", "a": "scan", "k": null}, {"x": 822, "n": "7–9", "t": "Setting check, data sheet and pull test", "a": "pop", "k": ["✓"]}, {"x": 978, "n": 10, "t": "Interlining check and data sheet", "a": "scan", "k": null}, {"x": 1134, "n": 11, "t": "Wash/First Batch Check", "a": "rot", "k": null}, {"x": 1267, "n": 12, "t": "How is it done? Wash test", "a": "scan", "k": null}, {"x": 1410, "n": 13, "t": "Packing inline inspection and Pre-Final", "a": "pop", "k": ["✓"]}, {"x": 1552, "n": "•", "t": "Inline Inspection report: Spring Quality Inspection Report", "a": "pop", "k": ["✓"]}],i=-1,c=document.getElementById("c"),cap=document.getElementById("cap"),st=document.querySelectorAll(".s"),t;
+function go(){i++;if(i>=S.length){c.className="";setTimeout(function(){for(var j=0;j<st.length;j++)st[j].className="s";i=-1;c.style.transition="none";c.style.left="-110px";cap.style.opacity=0;setTimeout(go,500)},2600);return}
+c.style.transition="left .9s linear";c.className="walk";c.style.left=S[i].x+"px";
+setTimeout(function(){c.className="act";var e=st[i],o=e.querySelector(".o"),T=S[i].k,k=0;e.className="s on "+S[i].a;cap.innerHTML="<b>"+S[i].n+"</b>"+S[i].t;cap.style.opacity=1;try{parent.postMessage({scqc:"inline",n:String(S[i].n),t:S[i].t},"*")}catch(e){}var f=32;cap.style.fontSize="32px";while(cap.scrollWidth>cap.clientWidth&&f>20){f--;cap.style.fontSize=f+"px"}
+o.textContent=S[i].a=="stamp"?"K":T?T[0]:"";if(T)t=setInterval(function(){k++;if(k<T.length)o.textContent=T[k]},700);
+setTimeout(function(){clearInterval(t);e.className="s done";go()},2400)},950)}
+setTimeout(go,700);</script></body></html>
